@@ -1,6 +1,4 @@
 -- University Course Management System
--- Simple MySQL project for practice
--- Run this file in MySQL 8.0 or later.
 
 CREATE DATABASE IF NOT EXISTS UniversityDB;
 USE UniversityDB;
@@ -88,7 +86,6 @@ INSERT INTO Courses VALUES
 (103, 'Python Basics', 1, 3, 3);
 
 -- 12 students take Introduction to SQL.
--- The first 6 students also take Data Structures.
 INSERT INTO Enrollments VALUES
 (1, 1, 101, '2022-08-01'),
 (2, 2, 101, '2022-08-05'),
@@ -112,9 +109,6 @@ INSERT INTO Enrollments VALUES
 (20, 7, 103, '2025-01-10');
 
 -- 3. CRUD practice on all tables
--- These test records are inside a transaction and are rolled back at the end.
--- This lets you practise INSERT, SELECT, UPDATE and DELETE without changing
--- the sample data used by the queries below.
 
 START TRANSACTION;
 
@@ -151,26 +145,26 @@ ROLLBACK;
 
 -- 4. Queries from the project
 
--- Q1. Students who enrolled after 2022
+--1. Students who enrolled after 2022
 SELECT *
 FROM Students
 WHERE EnrollmentDate >= '2023-01-01';
 
--- Q2. Courses in the Mathematics department (maximum 5)
+-- 2. Courses in the Mathematics department (maximum 5)
 SELECT c.CourseID, c.CourseName, c.Credits
 FROM Courses c
 JOIN Departments d ON c.DepartmentID = d.DepartmentID
 WHERE d.DepartmentName = 'Mathematics'
 LIMIT 5;
 
--- Q3. Number of students in each course; show courses with more than 5
+-- 3. Number of students in each course; show courses with more than 5
 SELECT c.CourseName, COUNT(DISTINCT e.StudentID) AS TotalStudents
 FROM Courses c
 JOIN Enrollments e ON c.CourseID = e.CourseID
 GROUP BY c.CourseID, c.CourseName
 HAVING COUNT(DISTINCT e.StudentID) > 5;
 
--- Q4. Students enrolled in both SQL and Data Structures
+-- 4. Students enrolled in both SQL and Data Structures
 SELECT s.StudentID, s.FirstName, s.LastName
 FROM Students s
 JOIN Enrollments e ON s.StudentID = e.StudentID
@@ -179,43 +173,43 @@ WHERE c.CourseName IN ('Introduction to SQL', 'Data Structures')
 GROUP BY s.StudentID, s.FirstName, s.LastName
 HAVING COUNT(DISTINCT c.CourseName) = 2;
 
--- Q5. Students enrolled in either SQL or Data Structures
+-- 5. Students enrolled in either SQL or Data Structures
 SELECT DISTINCT s.StudentID, s.FirstName, s.LastName
 FROM Students s
 JOIN Enrollments e ON s.StudentID = e.StudentID
 JOIN Courses c ON e.CourseID = c.CourseID
 WHERE c.CourseName IN ('Introduction to SQL', 'Data Structures');
 
--- Q6. Average course credits
+-- 6. Average course credits
 SELECT AVG(Credits) AS AverageCredits
 FROM Courses;
 
--- Q7. Highest instructor salary in Computer Science
+-- 7. Highest instructor salary in Computer Science
 SELECT MAX(i.Salary) AS HighestSalary
 FROM Instructors i
 JOIN Departments d ON i.DepartmentID = d.DepartmentID
 WHERE d.DepartmentName = 'Computer Science';
 
--- Q8. Number of students enrolled in courses in each department
+-- 8. Number of students enrolled in courses in each department
 SELECT d.DepartmentName, COUNT(DISTINCT e.StudentID) AS TotalStudents
 FROM Departments d
 LEFT JOIN Courses c ON d.DepartmentID = c.DepartmentID
 LEFT JOIN Enrollments e ON c.CourseID = e.CourseID
 GROUP BY d.DepartmentID, d.DepartmentName;
 
--- Q9. INNER JOIN: students and their courses
+-- 9. INNER JOIN: students and their courses
 SELECT s.FirstName, s.LastName, c.CourseName
 FROM Students s
 INNER JOIN Enrollments e ON s.StudentID = e.StudentID
 INNER JOIN Courses c ON e.CourseID = c.CourseID;
 
--- Q10. LEFT JOIN: all students, including students without a course
+-- 10. LEFT JOIN: all students, including students without a course
 SELECT s.FirstName, s.LastName, c.CourseName
 FROM Students s
 LEFT JOIN Enrollments e ON s.StudentID = e.StudentID
 LEFT JOIN Courses c ON e.CourseID = c.CourseID;
 
--- Q11. Subquery: students in courses with more than 10 students
+-- 11. Subquery: students in courses with more than 10 students
 SELECT DISTINCT s.StudentID, s.FirstName, s.LastName
 FROM Students s
 JOIN Enrollments e ON s.StudentID = e.StudentID
@@ -226,22 +220,22 @@ WHERE e.CourseID IN (
     HAVING COUNT(DISTINCT StudentID) > 10
 );
 
--- Q12. Get the year of each student's enrollment
+-- 12. Get the year of each student's enrollment
 SELECT FirstName, LastName, YEAR(EnrollmentDate) AS EnrollmentYear
 FROM Students;
 
--- Q13. Join instructor first and last name together
+-- 13. Join instructor first and last name together
 SELECT CONCAT(FirstName, ' ', LastName) AS InstructorName
 FROM Instructors;
 
--- Q14. Running total of course enrollments by date
+-- 14. Running total of course enrollments by date
 SELECT EnrollmentID, CourseID, EnrollmentDate,
        COUNT(*) OVER (
            ORDER BY EnrollmentDate, EnrollmentID
        ) AS RunningTotal
 FROM Enrollments;
 
--- Q15. Label students Senior or Junior based on years since enrollment
+-- 15. Label students Senior or Junior based on years since enrollment
 SELECT FirstName, LastName, EnrollmentDate,
        CASE
            WHEN TIMESTAMPDIFF(YEAR, EnrollmentDate, CURDATE()) > 4 THEN 'Senior'
